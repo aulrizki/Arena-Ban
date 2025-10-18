@@ -1,0 +1,1 @@
+Buku Stok Arena Ban adalah web untuk mencatat dan memantau stok ban dan velg secara digital. Sistem ini menggantikan pencatatan manual agar lebih efisien dan akurat. Fitur utamanya meliputi pengelolaan merk, barang, serta riwayat stok masuk dan keluar dari distributor, penjualan, atau pengiriman cabang.
