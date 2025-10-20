@@ -1,57 +1,44 @@
-// pages/VelgPage.js
 import React, { useState, useEffect } from "react";
 import BarangTable from "../components/BarangTable";
 import BarangDialog from "../components/BarangDialog";
-import { mockStockHistory } from "../data/mockStockHistory";
-import { calculateCurrentStock } from "../utils/stockCalculator";
+import api from "../services/api";
 
 export default function VelgPage() {
-  const [barang, setBarang] = useState([
-    { id: 2, merk: "Enkei", tipe: "Racing", jenis: "Velg", harga_modal: 1500000 },
-    { id: 5, merk: "BBS", tipe: "LM", jenis: "Velg", harga_modal: 2500000 },
-  ]);
-
+  const [barang, setBarang] = useState([]);
   const [showDialog, setShowDialog] = useState(false);
   const [editingBarang, setEditingBarang] = useState(null);
 
-  // Update stok barang berdasarkan history
-  const updateBarangStock = () => {
-    const updatedBarang = barang.map(item => ({
-      ...item,
-      stok: calculateCurrentStock(item.id, mockStockHistory)
-    }));
-    setBarang(updatedBarang);
+  const fetchBarang = async () => {
+    try {
+      const res = await api.get("/barang?kategori=velg");
+      setBarang(res.data);
+    } catch (err) {
+      console.error("Gagal memuat data velg:", err);
+    }
   };
 
   useEffect(() => {
-    updateBarangStock();
+    fetchBarang();
   }, []);
 
-  const handleSave = (formData) => {
-    if (editingBarang) {
-      setBarang(barang.map(item => 
-        item.id === editingBarang.id 
-          ? { ...formData, id: editingBarang.id }
-          : item
-      ));
-    } else {
-      const newBarang = {
-        ...formData,
-        id: Math.max(...barang.map(b => b.id)) + 1
-      };
-      setBarang([...barang, newBarang]);
+  const handleSave = async (formData) => {
+    try {
+      if (editingBarang) {
+        await api.put(`/barang/${editingBarang.id}`, formData);
+      } else {
+        await api.post("/barang", { ...formData, kategori: "velg" });
+      }
+      fetchBarang();
+    } catch (err) {
+      console.error("Gagal menyimpan data:", err);
     }
     setShowDialog(false);
     setEditingBarang(null);
   };
 
-  const handleEdit = (barang) => {
-    setEditingBarang(barang);
-    setShowDialog(true);
-  };
-
-  const handleDelete = (id) => {
-    setBarang(barang.filter(item => item.id !== id));
+  const handleDelete = async (id) => {
+    await api.delete(`/barang/${id}`);
+    fetchBarang();
   };
 
   return (
@@ -66,18 +53,11 @@ export default function VelgPage() {
         </button>
       </div>
 
-      <BarangTable 
-        data={barang} 
-        onEdit={handleEdit} 
-        onDelete={handleDelete} 
-      />
+      <BarangTable data={barang} onEdit={setEditingBarang} onDelete={handleDelete} />
 
       {showDialog && (
         <BarangDialog
-          onClose={() => {
-            setShowDialog(false);
-            setEditingBarang(null);
-          }}
+          onClose={() => setShowDialog(false)}
           onSave={handleSave}
           initialData={editingBarang}
         />

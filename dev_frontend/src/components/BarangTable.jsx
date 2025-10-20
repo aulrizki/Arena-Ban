@@ -1,4 +1,3 @@
-// components/BarangTable.js
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -6,7 +5,7 @@ export default function BarangTable({ data, onEdit, onDelete }) {
   const navigate = useNavigate();
 
   const handleStockClick = (item) => {
-    navigate(`/history?barang_id=${item.id}&merk=${encodeURIComponent(item.merk)}&tipe=${encodeURIComponent(item.tipe)}`);
+    navigate(`/history?barang_id=${item.id}&merk=${encodeURIComponent(item.merk.nama)}&tipe=${encodeURIComponent(item.tipe)}`);
   };
 
   if (!data || data.length === 0) {
@@ -19,7 +18,6 @@ export default function BarangTable({ data, onEdit, onDelete }) {
         <tr>
           <th className="p-2 border">Merk</th>
           <th className="p-2 border">Tipe</th>
-          <th className="p-2 border">Jenis</th>
           <th className="p-2 border">Harga Modal</th>
           <th className="p-2 border">Stok</th>
           <th className="p-2 border text-center">Aksi</th>
@@ -28,9 +26,8 @@ export default function BarangTable({ data, onEdit, onDelete }) {
       <tbody>
         {data.map((item) => (
           <tr key={item.id} className="hover:bg-gray-50">
-            <td className="p-2 border">{item.merk}</td>
+            <td className="p-2 border">{item.merk?.nama || "-"}</td>
             <td className="p-2 border">{item.tipe}</td>
-            <td className="p-2 border">{item.jenis}</td>
             <td className="p-2 border">Rp {item.harga_modal?.toLocaleString()}</td>
             <td className="p-2 border">
               <button

@@ -1,184 +1,80 @@
-// components/StockDialog.js
 import React, { useState } from "react";
 
-export default function StockDialog({ onClose, onSave }) {
+export default function StockDialog({ onClose, onSave, stokAwal = 0 }) {
   const [formData, setFormData] = useState({
-    tanggal: new Date().toISOString().split('T')[0],
-    tipe: "masuk", // "masuk" or "keluar"
+    tipe: "masuk",
     jumlah: 0,
-    stokAwal: 0,
-    stokAkhir: 0,
     keterangan: ""
   });
+
+  const stokAkhir = formData.tipe === "masuk" 
+    ? stokAwal + parseInt(formData.jumlah || 0)
+    : stokAwal - parseInt(formData.jumlah || 0);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.jumlah > 0) {
-      onSave(formData);
+      onSave({
+        ...formData,
+        stokAwal,
+        stokAkhir
+      });
     }
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  // Calculate stokAkhir automatically based on tipe and jumlah
-  const handleJumlahChange = (e) => {
-    const jumlah = parseInt(e.target.value) || 0;
-    const stokAwal = parseInt(formData.stokAwal) || 0;
-    
-    let stokAkhir = stokAwal;
-    if (formData.tipe === "masuk") {
-      stokAkhir = stokAwal + jumlah;
-    } else {
-      stokAkhir = stokAwal - jumlah;
-    }
-
-    setFormData({
-      ...formData,
-      jumlah: jumlah,
-      stokAkhir: stokAkhir
-    });
-  };
-
-  const handleTipeChange = (e) => {
-    const tipe = e.target.value;
-    const jumlah = parseInt(formData.jumlah) || 0;
-    const stokAwal = parseInt(formData.stokAwal) || 0;
-    
-    let stokAkhir = stokAwal;
-    if (tipe === "masuk") {
-      stokAkhir = stokAwal + jumlah;
-    } else {
-      stokAkhir = stokAwal - jumlah;
-    }
-
-    setFormData({
-      ...formData,
-      tipe: tipe,
-      stokAkhir: stokAkhir
-    });
-  };
-
-  const handleStokAwalChange = (e) => {
-    const stokAwal = parseInt(e.target.value) || 0;
-    const jumlah = parseInt(formData.jumlah) || 0;
-    
-    let stokAkhir = stokAwal;
-    if (formData.tipe === "masuk") {
-      stokAkhir = stokAwal + jumlah;
-    } else {
-      stokAkhir = stokAwal - jumlah;
-    }
-
-    setFormData({
-      ...formData,
-      stokAwal: stokAwal,
-      stokAkhir: stokAkhir
-    });
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-lg w-96">
-        <h2 className="text-lg font-bold mb-4">Tambah Perubahan Stok</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-3">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tanggal</label>
-              <input
-                type="date"
-                name="tanggal"
-                value={formData.tanggal}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-                required
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipe</label>
-              <select
-                name="tipe"
-                value={formData.tipe}
-                onChange={handleTipeChange}
-                className="w-full p-2 border rounded"
-                required
-              >
-                <option value="masuk">Stok Masuk</option>
-                <option value="keluar">Stok Keluar</option>
-              </select>
-            </div>
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-white p-6 rounded-2xl shadow-lg w-96 border border-[#E2E8F0]">
+        <h2 className="text-lg font-semibold mb-4 text-[#1E293B]">
+          Tambah Perubahan Stok
+        </h2>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Stok Awal</label>
-              <input
-                type="number"
-                name="stokAwal"
-                placeholder="Stok Awal"
-                value={formData.stokAwal}
-                onChange={handleStokAwalChange}
-                className="w-full p-2 border rounded"
-                min="0"
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+          {/* Tipe */}
+          <select
+            name="tipe"
+            value={formData.tipe}
+            onChange={(e) => setFormData({ ...formData, tipe: e.target.value })}
+            className="w-full p-2 border border-[#CBD5E1] rounded-lg"
+            required
+          >
+            <option value="masuk">Stok Masuk</option>
+            <option value="keluar">Stok Keluar</option>
+          </select>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Jumlah Perubahan</label>
-              <input
-                type="number"
-                name="jumlah"
-                placeholder="Jumlah Perubahan"
-                value={formData.jumlah}
-                onChange={handleJumlahChange}
-                className="w-full p-2 border rounded"
-                min="1"
-                required
-              />
-            </div>
+          {/* Jumlah */}
+          <input
+            type="number"
+            name="jumlah"
+            placeholder="Jumlah"
+            value={formData.jumlah}
+            onChange={(e) => setFormData({ ...formData, jumlah: e.target.value })}
+            className="w-full p-2 border border-[#CBD5E1] rounded-lg"
+            min="1"
+            required
+          />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Stok Akhir</label>
-              <input
-                type="number"
-                name="stokAkhir"
-                value={formData.stokAkhir}
-                className="w-full p-2 border rounded bg-gray-100"
-                readOnly
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Stok Akhir dihitung otomatis: Stok Awal {formData.tipe === "masuk" ? "+" : "-"} Jumlah
-              </p>
-            </div>
+          {/* Keterangan */}
+          <input
+            type="text"
+            name="keterangan"
+            placeholder="Keterangan (opsional)"
+            value={formData.keterangan}
+            onChange={(e) => setFormData({ ...formData, keterangan: e.target.value })}
+            className="w-full p-2 border border-[#CBD5E1] rounded-lg"
+          />
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Keterangan</label>
-              <input
-                type="text"
-                name="keterangan"
-                placeholder="Keterangan (opsional)"
-                value={formData.keterangan}
-                onChange={handleChange}
-                className="w-full p-2 border rounded"
-              />
-            </div>
-          </div>
-          <div className="flex justify-end space-x-2 mt-4">
+          <div className="flex justify-end gap-2 mt-4">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              className="bg-gray-300 px-3 py-2 rounded-lg hover:bg-gray-400"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700"
             >
               Simpan
             </button>
