@@ -1,0 +1,54 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Merk {
+  id       Int      @id @default(autoincrement())
+  nama_merk String   @db.VarChar(100)
+  barang   Barang[]
+}
+
+model Barang {
+  id          Int           @id @default(autoincrement())
+  kategori    Kategori      @default(Ban)
+  id_merk     Int
+  merk        Merk           @relation(fields: [id_merk], references: [id], onDelete: Cascade)
+  nama_barang String         @db.VarChar(100)
+  modal       Int
+  stok        Int            @default(0)
+  stokHistory StokHistory[]
+
+  @@index([id_merk])
+}
+
+model StokHistory {
+  id            Int       @id @default(autoincrement())
+  id_barang     Int
+  barang        Barang    @relation(fields: [id_barang], references: [id], onDelete: Cascade)
+  tanggal       DateTime
+  jenis         JenisStok
+  jumlah        Int
+  keterangan    String?   @db.VarChar(255)
+  stok_setelah  Int
+}
+
+enum Kategori {
+  Ban
+  Velg
+}
+
+enum JenisStok {
+  Masuk
+  Keluar
+}
